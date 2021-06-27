@@ -1,4 +1,4 @@
-package org.my
+package org.uk.aeb
 
 object Main {
 

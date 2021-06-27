@@ -1,8 +1,8 @@
-package my.org
+package org.aeb.uk
 
-import org.my.Utils
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import org.uk.aeb.Utils
 
 class UtilsSpec extends AnyFlatSpec with should.Matchers {
 
