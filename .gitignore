@@ -4,3 +4,6 @@ target
 # editor
 .idea
 .bsp
+
+# virtual environment
+.venv
