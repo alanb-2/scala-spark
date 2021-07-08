@@ -9,9 +9,9 @@ import scala.collection.JavaConverters._
 case class SourceConfig(uri: String)
 
 case class SinkConfig(
-    uri: String,
+    format: String,
     options: Map[String, String],
-    format: String
+    uri: String
 )
 
 case class DataConfig(source: SourceConfig, sink: SinkConfig)
@@ -38,7 +38,7 @@ object ApplicationConfig {
     val sinkConfig = SinkConfig(
         uri = conf.getString("data.sink.uri"),
         options = configObjectsToMap(conf.getObjectList("data.sink.options").asScala),
-        format = conf.getString("format")
+        format = conf.getString("data.sink.format")
     )
 
     val data = DataConfig(

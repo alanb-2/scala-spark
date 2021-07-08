@@ -2,7 +2,6 @@
 
 Project to demonstrate spark functionality using a simple word count example.
 
-
 ## Prerequisites
 
 * Java 11
@@ -78,4 +77,27 @@ sbt clean Docker/publishLocal
 
 ## Execute
 
-TBD
+### Local
+
+1.  Download and extract Apache Spark 3.0.x. 
+
+2.  Create a directory and copy the input file to it:
+    ```shell
+    mkdir -p /tmp/wordcount/input
+    cp src/it/resources/local/declaration_of_independence.txt /tmp/wordcount/input/.
+    ```
+
+3.  Build the fat JAR.
+
+4.  Execute the application:
+    ```shell
+    $SPARK_HOME/bin/spark-submit --master "local[2]" \
+    --name scala-spark \
+    --conf "spark.executor.extraJavaOptions=-Dconfig.file=src/it/resources/local/application.conf" \
+    --conf "spark.driver.extraJavaOptions=-Dconfig.file=src/it/resources/local/application.conf" \
+    --class org.uk.aeb.Main \
+    target/scala-spark.jar
+    ```
+    Where `$SPARK_HOME` is the home directory of Apache Spark on your machine.
+
+5.  Inspect the output at `/tmp/wordcount/output`

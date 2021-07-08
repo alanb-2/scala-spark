@@ -6,7 +6,6 @@ import org.uk.aeb.models.SourceConfig
 object File {
 
   def read(config: SourceConfig)(implicit spark: SparkSession): Dataset[String] =
-    spark.read
-      .textFile(config.uri)
+    spark.read.textFile(config.uri)
 
 }
