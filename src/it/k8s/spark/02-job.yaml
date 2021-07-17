@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spark-job
+  namespace: spark-integration-test
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+        - name: scala-spark
+          image: localhost:5000/scala-spark:0.1
+          imagePullPolicy: Always
+          command: ["/bin/bash", "-c"]
+          args: [
+            "spark-submit --master 'local[*]' --name scala-spark-0.1 \
+            --conf spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore \
+            --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+            --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+            --conf spark.hadoop.fs.s3a.endpoint=http://minio-service:9000 \
+            --conf spark.hadoop.fs.s3a.access.key=$(AWS_ACCESS_KEY_ID) \
+            --conf spark.hadoop.fs.s3a.secret.key=$(AWS_SECRET_ACCESS_KEY) \
+            --conf spark.hadoop.fs.s3a.path.style.access=true \
+            --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+            --conf spark.driver.extraJavaOptions='-Dconfig.file=/config/application.conf -Djava.net.preferIPv4Stack=true -Dcom.amazonaws.services.s3.enableV4=true' \
+            --conf spark.executor.extraJavaOptions='-Dconfig.file=/config/application.conf -Djava.net.preferIPv4Stack=true -Dcom.amazonaws.services.s3.enableV4=true' \
+            --class uk.org.aeb.Main \
+            /app/scala-spark.jar"
+          ]
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-basic-auth-secret
+                  key: username
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-basic-auth-secret
+                  key: password
+          volumeMounts:
+            - name: application-conf-volume
+              mountPath: "/config"
+              readOnly: true
+      volumes:
+        - name: application-conf-volume
+          configMap:
+            name: spark-application-conf
+      restartPolicy: Never

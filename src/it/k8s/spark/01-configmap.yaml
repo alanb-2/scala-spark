@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-application-conf
+  namespace: spark-integration-test
+data:
+  application.conf: |
+    data {
+
+      source.uri = "s3a://data-bucket/wordcount/input"
+      sink {
+          format = "csv"
+          options = [
+              { "mergeSchema" = "true" }
+          ]
+          uri = "s3a://data-bucket/wordcount/output"
+
+      }
+
+    }
