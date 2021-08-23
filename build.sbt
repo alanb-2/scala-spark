@@ -2,7 +2,7 @@ import Dependencies._
 import com.typesafe.sbt.packager.docker.{Cmd, ExecCmd}
 
 ThisBuild / crossPaths := false
-ThisBuild / organization := "org.uk.aeb"
+ThisBuild / organization := "uk.org.aeb"
 ThisBuild / scalacOptions += ""
 ThisBuild / scalaVersion := "2.12.14"
 ThisBuild / version := "0.1"
@@ -42,8 +42,30 @@ Universal / mappings := {
   filtered :+ (fatJar -> ("lib/" + fatJar.getName))
 }
 
+val appDir = "/app"
+val configDir = "/config"
+val sparkArchiveName = s"spark-$sparkVersion-bin-hadoop$hadoopMajorMinorVersion"
+
 dockerCommands := Seq(
-    Cmd("FROM", "datamechanics/spark:jvm-only-3.0.2-hadoop-3.2.0-java-11-scala-2.12-dm13"),
-    Cmd("COPY", s"opt/docker/lib/${(assembly / assemblyJarName).value}", "/app"),
+    Cmd("FROM", "alpine:3.13"),
+    Cmd("ENV", "JAVA_HOME=/usr/lib/jvm/java-11-openjdk"),
+    Cmd("ENV", "SPARK_HOME=/usr/local/spark"),
+    Cmd("ENV", "PATH=$PATH:${SPARK_HOME}/bin"),
+    Cmd(
+        "RUN",
+        "apk update && \\"
+          + "apk add --no-cache bash && \\"
+          + "apk add --no-cache openjdk11 && \\"
+          + "apk add --no-cache curl && \\"
+          + s"curl https://archive.apache.org/dist/spark/spark-$sparkVersion/$sparkArchiveName.tgz | tar -xz -C /usr/local/ && \\"
+          + s"ln -s $sparkArchiveName" + " $SPARK_HOME && \\"
+          + s"mkdir $configDir"
+    ),
+    Cmd("WORKDIR", appDir),
+    Cmd("COPY", s"opt/docker/lib/${(assembly / assemblyJarName).value}", s"$appDir/"),
+    Cmd("RUN",
+        s"chmod +x $appDir/${(assembly / assemblyJarName).value} $configDir "
+          + "${SPARK_HOME}/sbin/*.sh ${SPARK_HOME}/bin/*.sh"
+    ),
     ExecCmd("ENTRYPOINT", "/bin/bash")
 )

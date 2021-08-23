@@ -2,11 +2,11 @@ import sbt._
 
 object Dependencies {
 
-  lazy val awsJavaSdkVersion = "1.11.375"
-  lazy val deltaVersion = "0.8.0"
-  lazy val hadoopVersion = "3.2.0"
+  lazy val deltaVersion = "1.0.0"
+  lazy val hadoopMajorMinorVersion = "3.2"
+  lazy val hadoopVersion = s"$hadoopMajorMinorVersion.0"
   lazy val scalaTestVersion = "3.2.5"
-  lazy val sparkVersion = "3.0.2"
+  lazy val sparkVersion = "3.1.2"
   lazy val typesafeVersion = "1.4.1"
 
   val hadoopAwsDependency = "org.apache.hadoop" % "hadoop-aws" % hadoopVersion
